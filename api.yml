@@ -1,0 +1,189 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The 
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /estate:
+    post:
+      summary:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstateRequest'
+      response:
+        '201':
+          description:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstateResponse'
+        '400':
+          description: invalid dimension
+        default:
+          description: unexpected error
+  /estate/{id}/tree:
+    post:
+      summary:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the estate to use.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TreeRequest'
+      response:
+        '201':
+          description: tree height successfully recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeResponse'
+        '400':
+          description: invalid input
+        '404':
+          description: estate id not found
+        default:
+          description: unexpected error
+  /estate/{id}/stats:
+    get:
+      summary:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to use.
+          schema:
+            type: string
+            format: uuid
+      response:
+        '200':
+          description: statistics of the estate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstateStatsResponse'
+        '404':
+          description: estate id not found
+        default:
+          description: unexpected error
+  /estate/{id}/drone-plan:
+    get:
+      summary:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to use.
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: max_distance
+          schema:
+            type: integer
+          required: false
+          description: max distance the drone can travel
+      response:
+        '200':
+          description: drone plan information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DronePlanResponse'
+        '404':
+          description: estate id not found
+        default:
+          description: unexpected error
+components:
+  schemas:
+    DronePlanResponse:
+      type: object
+      properties:
+        distance:
+          type: integer
+        rest:
+          type: object
+          properties:
+            x:
+              type: integer
+            y:
+              type: integer
+    EstateStatsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        max:
+          type: integer
+        min:
+          type: integer
+        median:
+          type: integer
+    TreeRequest:
+      type: object
+      properties:
+        x:
+          type: integer
+          minimum: 1
+          maximum: 50000
+        y:
+          type: integer
+          minimum: 1
+          maximum: 50000
+        height:
+          type: integer
+          minimum: 1
+          maximum: 30
+      required:
+        - x
+        - y
+        - height
+    TreeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    EstateRequest:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 1
+          maximum: 50000
+        height:
+          type: integer
+          minimum: 1
+          maximum: 50000
+      required:
+        - width
+        - height
+    EstateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
